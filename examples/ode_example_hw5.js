@@ -1,5 +1,7 @@
 const fs = require('fs')
-const {System, StringReaction} = require('./CellSim')
+const { StringReaction } = require('../Reaction')
+const ODEDirect = require('../simulators/ODEDirect')
+const System = require('../System')
 
 const   krf = 0.1,
         krr = 1,
@@ -19,12 +21,12 @@ const reactions = [
     ...StringReaction(`IPTG + LacI -> IPTG_LacI`, {}, ko),
 ]
 
-const system = new System(reactions, {LacI: 0, TetR: 1, pLac: 1, pTet: 1})
+const system = new System(reactions, {LacI: 0, TetR: 1, pLac: 1, pTet: 1}, new ODEDirect({timeStep: 0.02}))
 system.record()
-system.stepMultiple({timeStep: 0.02, iterations: 8000})
+system.stepMultiple(8000)
 system.set('aTc', 10)
-system.stepMultiple({timeStep: 0.02, iterations: 15000})
+system.stepMultiple(15000)
 system.set('IPTG', 10)
-system.stepMultiple({timeStep: 0.02, iterations: 8000})
+system.stepMultiple(8000)
 
 fs.writeFileSync('./sim_output.csv', system.stopRecording())
